@@ -46,19 +46,25 @@ function focusPlusContext(data) {
     /**
      * Task 1 - Parse date with timeParse to year-month-day
      */
-
+    var parseDate = d3.timeParse("%Y-%m-%d");
+    //console.log(parseDate("2021-01-25"));
     /**
      * Task 2 - Define scales and axes for scatterplot
      */
-
+    var xScale = d3.scaleTime().range([0,width]);            
+    var yScale = d3.scaleLinear().range([height, 0]);
+    var xAxis = d3.axisBottom(xScale);
+    var yAxis = d3.axisLeft(yScale);
     /**
      * Task 3 - Define scales and axes for context (Navigation through the data)
      */
-
+    var navXScale = d3.scaleTime().range([0,width]);
+    var navYScale = d3.scaleLinear().range([0, height2])
+    var navXAxis = d3.axisBottom(navXScale);
     /**
      * Task 4 - Define the brush for the context graph (Navigation)
      */
-
+    var brush = d3.brushX().extent([[0,0],[width,height2]]).on("brush", brushed);
 
     //Setting scale parameters
     var maxDate = d3.max(data.features, function (d) { return parseDate(d.properties.Date) });
@@ -72,6 +78,13 @@ function focusPlusContext(data) {
     /**
      * Task 5 - Set the axes scales, both for focus and context.
      */
+    //Domain specifies the accepted input values. It then maps it to the range specified above.
+    xScale.domain([minDate,maxDate]);
+    yScale.domain([0,maxMag+1]);
+    navXScale.domain(xScale.domain());
+    navYScale.domain(yScale.domain());
+   // console.log(minDate +" Max: " + maxDate);
+    
 
 
     //<---------------------------------------------------------------------------------------------------->
@@ -90,13 +103,16 @@ function focusPlusContext(data) {
     context.append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + height2 + ")")
+        .call(navXAxis);
         //here..
-
     /**
      * Task 7 - Plot the small dots on the context graph.
      */
     small_points = dots.selectAll("dot")
-        //here...
+        .data(data.features)
+        .enter()
+        .append("circle") //Append all the dot objects to circle. Circle objects are specified in color_info.
+        .attr("class", "dotContext")            //Append as a class
         .filter(function (d) { return d.properties.EQ_PRIMARY != null })
         .attr("cx", function (d) {
             return navXScale(parseDate(d.properties.Date));
@@ -109,7 +125,10 @@ function focusPlusContext(data) {
       * Task 8 - Call plot function.
       * plot(points,nr,nr) try to use different numbers for the scaling.
       */
-
+     var points = new Points();
+     points.plot(small_points,4,2); //4 is for the no data variable size, 2 is for the 1+ deaths data size 
+     // (We chose a smaller size for the no data circles to not obstruct the relevant data)
+    
 
     //<---------------------------------------------------------------------------------------------------->
 
@@ -124,10 +143,16 @@ function focusPlusContext(data) {
     /**
      * Task 10 - Call x and y axis
      */
+    //Appending x-axis to focus window
     focus.append("g")
-    //here..
-    focus.append("g")
-    //here..
+    .attr("class", "axis axis--x")
+    .attr("transform", "translate(0, "+height+")") 
+    .call(xAxis);
+    
+    //Appending the y axis as the focus window
+    focus.append("g") 
+    .attr("class", "axis axis--y")
+    .call(yAxis);
 
     //Add y axis label to the scatter plot
     d3.select(".legend")
@@ -147,7 +172,11 @@ function focusPlusContext(data) {
      * Task 11 - Plot the dots on the focus graph.
      */
     selected_dots = dots.selectAll("dot")
-        //here..
+        .data(data.features)
+        .enter()
+        .append("circle")
+        .attr("class", "dot")
+        .attr("style", "opacity:1;")
         .filter(function (d) { return d.properties.EQ_PRIMARY != null })
         .attr("cx", function (d) {
             return xScale(parseDate(d.properties.Date));
@@ -160,7 +189,8 @@ function focusPlusContext(data) {
      * Task 12 - Call plot function
      * plot(points,nr,nr) no need to send any integers!
      */
-
+    points.plot(selected_dots,2,1);
+        
     //<---------------------------------------------------------------------------------------------------->
 
     //Mouseover function
@@ -176,7 +206,7 @@ function focusPlusContext(data) {
             /**
              * Task 13 - Update information in the "tooltip" by calling the tooltip function.
              */
-
+            points.tooltip(d);
 
             //Rescale the dots onhover
             d3.select(this).attr('r', 15)
@@ -232,8 +262,12 @@ function focusPlusContext(data) {
      * The brush function is trying to access things in scatter plot which are not yet
      * implmented if we put the brush before.
      */
-
-    //here..
+    //console.log(xScale.range());
+    context.append("g")
+        .attr("class", "brush") //what does this mean?
+        .call(brush) 
+        .call(brush.move, xScale.range());
+    
 
     //<---------------------------------------------------------------------------------------------------->
 
