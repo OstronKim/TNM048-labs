@@ -17,7 +17,7 @@ function worldMap(data) {
      * Task 15 - Get the tileLayer from the link at the bottom of this file
      * and add it to the map created above.
     */
-   L.tileLayer(map_link()).addTo(leafletMap);
+   L.tileLayer(map_link()).addTo(leafletMap); //Gives and URL to the map which we want to draw on the leafletMap
     /**
      * Task 16 - Create an svg call on top of the leaflet map.
      * Also append a g tag on this svg tag and add class leaflet-zoom-hide.
@@ -25,15 +25,15 @@ function worldMap(data) {
      */
     var svg_map = d3.select(leafletMap.getPanes().overlayPane).append("svg");
     var g = svg_map.append("g")
-        .attr("class", "leaflet-zoom-hide");
+        .attr("class", "leaflet-zoom-hide"); //Adds a zoom function to the map, not to the other graphs
     /**
      * Task 17 - Create a function that projects lat/lng points on the map.
      * Use latLngToLayerPoint, remember which goes where.
      */
     function projectPointsOnMap(x,y){   //A bit unclear
         var point = new L.LatLng(y,x);  //point is a coordinate on the map
-        point = leafletMap.latLngToLayerPoint(point);
-        this.stream.point(point.x,point.y);
+        point = leafletMap.latLngToLayerPoint(point);   //Make the latLong point fit correctly on the leafletMap
+        this.stream.point(point.x,point.y); //?
     }
     
     /**
@@ -44,8 +44,8 @@ function worldMap(data) {
      */
     //Transforming to the specific projection
 
-    var transform = d3.geoTransform({point: projectPointsOnMap});
-    var d3geoPath = d3.geoPath().projection(transform);
+    var transform = d3.geoTransform({point: projectPointsOnMap});       //Holds the transformed coordinates (svg_coordinates)
+    var d3geoPath = d3.geoPath().projection(transform);         //Draws data points with the given coordinates 
     
     // similar to projectPoint this function converts lat/long to
     //svg coordinates except that it accepts a point from our
@@ -179,9 +179,18 @@ function worldMap(data) {
     /**
      * Function for hovering the points, implement if time allows.
      */
-    this.hovered = function (input_point) {
-        console.log("If time allows you, implement something here!");
+    this.hovered = function (input_point) { 
+        d3.selectAll(".mapcircle")
+                .filter(function (d) { return d.id === input_point; })
+                .attr("style", "opacity:1");
+                
+        // d3.selectAll(".mapcircle")
+        //         .filter(function (d) { return d.id !== input_point; })
+        //         .attr("style", "opacity:0");
+                
     }
+
+    
 
     //<---------------------------------------------------------------------------------------------------->
 

@@ -51,20 +51,20 @@ function focusPlusContext(data) {
     /**
      * Task 2 - Define scales and axes for scatterplot
      */
-    var xScale = d3.scaleTime().range([0,width]);            
-    var yScale = d3.scaleLinear().range([height, 0]);
+    var xScale = d3.scaleTime().range([0,width]);  //Scale that is made for time          
+    var yScale = d3.scaleLinear().range([height, 0]); //Scale that is suited for linear relations (In this case magnitude) Reversed order for origo in top left
     var xAxis = d3.axisBottom(xScale);
-    var yAxis = d3.axisLeft(yScale);
+    var yAxis = d3.axisLeft(yScale); //Sets the positions of the axises
     /**
      * Task 3 - Define scales and axes for context (Navigation through the data)
      */
     var navXScale = d3.scaleTime().range([0,width]);
-    var navYScale = d3.scaleLinear().range([0, height2])
+    var navYScale = d3.scaleLinear().range([height2, 0])
     var navXAxis = d3.axisBottom(navXScale);
     /**
      * Task 4 - Define the brush for the context graph (Navigation)
      */
-    var brush = d3.brushX().extent([[0,0],[width,height2]]).on("brush", brushed);
+    var brush = d3.brushX().extent([[0,0],[width,height2]]).on("brush end", brushed);//Brush that performs in the X-axis, with specified intervall
 
     //Setting scale parameters
     var maxDate = d3.max(data.features, function (d) { return parseDate(d.properties.Date) });
@@ -80,7 +80,7 @@ function focusPlusContext(data) {
      */
     //Domain specifies the accepted input values. It then maps it to the range specified above.
     xScale.domain([minDate,maxDate]);
-    yScale.domain([0,maxMag+1]);
+    yScale.domain([0,maxMag+1]);            
     navXScale.domain(xScale.domain());
     navYScale.domain(yScale.domain());
    // console.log(minDate +" Max: " + maxDate);
@@ -103,8 +103,8 @@ function focusPlusContext(data) {
     context.append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + height2 + ")")
-        .call(navXAxis);
-        //here..
+        .call(navXAxis);    //Draws the axis for the context window
+        
     /**
      * Task 7 - Plot the small dots on the context graph.
      */
@@ -112,7 +112,7 @@ function focusPlusContext(data) {
         .data(data.features)
         .enter()
         .append("circle") //Append all the dot objects to circle. Circle objects are specified in color_info.
-        .attr("class", "dotContext")            //Append as a class
+        .attr("class", "dotContext")
         .filter(function (d) { return d.properties.EQ_PRIMARY != null })
         .attr("cx", function (d) {
             return navXScale(parseDate(d.properties.Date));
@@ -176,7 +176,7 @@ function focusPlusContext(data) {
         .enter()
         .append("circle")
         .attr("class", "dot")
-        .attr("style", "opacity:1;")
+        .attr("style", "opacity:1;")        //Sets all to full opacity
         .filter(function (d) { return d.properties.EQ_PRIMARY != null })
         .attr("cx", function (d) {
             return xScale(parseDate(d.properties.Date));
@@ -218,7 +218,7 @@ function focusPlusContext(data) {
                 .attr('r', 15)
 
             //Call map hover function if implemented!
-            //world_map.hovered(d.id);
+            world_map.hovered(d.id);
         });
     }
 
@@ -252,6 +252,7 @@ function focusPlusContext(data) {
                             return scaleQuantRad(d.properties.DEATHS);
                         }
                     })
+                   // world_map.reset();
             });
     }
     //<---------------------------------------------------------------------------------------------------->
@@ -264,9 +265,9 @@ function focusPlusContext(data) {
      */
     //console.log(xScale.range());
     context.append("g")
-        .attr("class", "brush") //what does this mean?
+        .attr("class", "brush") 
         .call(brush) 
-        .call(brush.move, xScale.range());
+        .call(brush.move, xScale.range());//allows for burshing the in x-axis
     
 
     //<---------------------------------------------------------------------------------------------------->
@@ -289,7 +290,7 @@ function focusPlusContext(data) {
 
         if (d3.event.type == "end") {
             var curr_view_erth = []
-            d3.selectAll(".dot").each(
+            d3.selectAll(".dot").each( 
                 function (d, i) {
                     if (parseDate(d.properties.Date) >= xScale.domain()[0] &&
                         parseDate(d.properties.Date) <= xScale.domain()[1]) {
@@ -299,7 +300,8 @@ function focusPlusContext(data) {
             /**
              * Remove comment for updating dots on the map.
              */
-            //curr_points_view = world_map.change_map_points(curr_view_erth)
+            curr_points_view = world_map.change_map_points(curr_view_erth)
+           
         }
     }
 
