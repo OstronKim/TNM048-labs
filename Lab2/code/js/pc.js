@@ -59,7 +59,7 @@ function pc(data){
 
     //Plot the results from kmeans
     plot(kmeansResults);
-
+    //plot(data);
     //------------------------------------------------------------------------------------->
     function plot(results){
         // Add grey background lines for context.
