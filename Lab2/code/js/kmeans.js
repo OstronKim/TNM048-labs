@@ -8,7 +8,7 @@ function kmeans(data, k) {
 
     //Crap we need
     var iterations = 0;
-    var maxLoops = 100;
+    var maxLoops = 5;
     var qualityChange = 0;
     var oldqualitycheck = 0;
     var qualitycheck = 1000000;
@@ -39,10 +39,10 @@ function kmeans(data, k) {
         qualitycheck = qualityCheck(centroid,new_array,clusterIndexPerPoint);
 
         qualityChange = oldqualitycheck - qualitycheck;
-        console.log(qualityChange);
+        console.log("Quality change = " + qualityChange);
         iterations++;
 
-        if(qualityChange < 0.001 || iterations == maxLoops) 
+        if(qualityChange < 0.001 || iterations == maxLoops) //Qualitychange doesnt affect as expected in some cases (Probably due to initial randomization of centroids)
             converge = true;
         
     }
